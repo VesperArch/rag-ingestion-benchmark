@@ -110,7 +110,7 @@ cat results/results.md
 ### Limitações
 
 1. `tracemalloc` rastreia memória Python gerenciada. O RSS do processo inclui overhead do interpretador (~20–30 MB adicionais).
-2. `GODEBUG=gctrace=1` reporta heap pós-GC (live set), não o pico bruto. Para `HeapInuse` máximo, instrumentar com `runtime.MemStats`.
+2. `GODEBUG=gctrace=1` reporta o heap no momento da coleta — o maior valor capturado representa o peak bruto antes da liberação, não o residual pós-GC. Para medir o live set após coleta completa, instrumentar com `runtime.MemStats.HeapInuse` após `runtime.GC()` explícito.
 3. `ThreadPoolExecutor` no Python não paralela código CPU-bound por causa do GIL. O chunking ocorre majoritariamente em série, o que explica o throughput ~340× menor.
 4. Rodar 3 vezes e usar a mediana — resultados variam com estado do page cache e carga do sistema.
 
