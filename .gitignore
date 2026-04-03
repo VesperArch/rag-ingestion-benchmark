@@ -1,0 +1,16 @@
+# Corpus gerado — não versionar (pode chegar a 2+ GB)
+corpus/*
+!corpus/README.md
+
+# Ambiente virtual Python
+.venv/
+__pycache__/
+*.pyc
+
+# Binário temporário do GopherDoc
+/tmp/gopherdoc_bin
+
+# Editor
+.vscode/
+.idea/
+*.swp
