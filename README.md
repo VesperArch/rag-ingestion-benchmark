@@ -1,19 +1,19 @@
 # RAG Ingestion Benchmark — GopherDoc vs LangChain
 
-Comparação de throughput, heap e wall time entre GopherDoc (Go) e LangChain (Python) sobre o mesmo corpus de ~1.7 GB.
+Comparison of throughput, heap usage, and wall time between GopherDoc (Go) and LangChain (Python) over the same ~1.7 GB corpus.
 
-| Métrica            | GopherDoc | LangChain |
-|--------------------|-----------|-----------|
+| Metric             | GopherDoc | LangChain  |
+|--------------------|-----------|------------|
 | Wall time          | 4.010 s   | 1363.332 s |
 | Throughput         | 421 MB/s  | 1.24 MB/s  |
-| Peak heap (pós-GC) | 117 MB    | 389 MB     |
-| Chunks gerados     | 498,211   | 496,349    |
+| Peak heap (post-GC) | 117 MB    | 389 MB     |
+| Chunks generated   | 498,211   | 496,349    |
 
-Resultados completos e ambiente: [results/results.md](results/results.md).
+Full results and environment details: [results/results.md](results/results.md).
 
 ---
 
-## Estrutura
+## Structure
 
 ```
 rag-ingestion-benchmark/
@@ -32,15 +32,15 @@ rag-ingestion-benchmark/
 
 ---
 
-## Como reproduzir
+## How to reproduce
 
-### 1. Clonar com submodule
+### 1. Clone with submodule
 
 ```bash
 git clone --recurse-submodules https://github.com/VesperArch/rag-ingestion-benchmark
 ```
 
-### 2. Pré-requisitos
+### 2. Prerequisites
 
 - Go 1.22+
 - Python 3.10+
@@ -51,32 +51,32 @@ source .venv/bin/activate
 pip install -r langchain/requirements.txt
 ```
 
-### 3. Gerar o corpus
+### 3. Generate the corpus
 
 ```bash
 chmod +x gera_corpus.sh
 ./gera_corpus.sh
 ```
 
-### 4. Rodar o GopherDoc
+### 4. Run GopherDoc
 
 ```bash
 chmod +x gopherdoc/run.sh
 ./gopherdoc/run.sh
 ```
 
-Compila o binário antes de iniciar o timer (`go build` não entra no wall time). Usa `GODEBUG=gctrace=1` para capturar heap pós-GC real.
+Compiles the binary before starting the timer (`go build` does not count toward wall time). Uses `GODEBUG=gctrace=1` to capture real heap at collection time.
 
-### 5. Rodar o LangChain
+### 5. Run LangChain
 
 ```bash
 source .venv/bin/activate
 python langchain/benchmark.py --corpus-dir corpus/ --workers 16
 ```
 
-`tracemalloc` é iniciado antes de qualquer alocação de dados do corpus.
+`tracemalloc` is started before any corpus data is allocated.
 
-### 6. Ver resultados
+### 6. View results
 
 ```bash
 cat results/results.md
@@ -84,41 +84,41 @@ cat results/results.md
 
 ---
 
-## Metodologia
+## Methodology
 
-### O que é medido
+### What is measured
 
-| Métrica   | GopherDoc                                          | LangChain                                    |
-|-----------|----------------------------------------------------|----------------------------------------------|
-| Wall time | `date +%s%N` antes/depois da execução do binário   | `time.perf_counter()` antes/depois do pool   |
-| Throughput| `corpus_bytes / wall_time`                         | `corpus_bytes / wall_time`                   |
-| Peak heap | maior `Z` em `W->X->Z MB` do gctrace              | `tracemalloc.get_traced_memory()[1]`          |
+| Metric    | GopherDoc                                        | LangChain                                  |
+|-----------|--------------------------------------------------|--------------------------------------------|
+| Wall time | `date +%s%N` before/after binary execution       | `time.perf_counter()` before/after pool    |
+| Throughput| `corpus_bytes / wall_time`                       | `corpus_bytes / wall_time`                 |
+| Peak heap | largest `Z` in `W->X->Z MB` from gctrace        | `tracemalloc.get_traced_memory()[1]`        |
 
-### O que não é medido
+### What is not measured
 
-- Tempo de embedding — nenhum modelo é chamado.
-- Escrita em banco vetorial.
-- Compilação do GopherDoc.
-- Inicialização do interpretador Python.
+- Embedding time — no model is called.
+- Writing to a vector store.
+- GopherDoc compilation.
+- Python interpreter startup.
 
-### Comparabilidade
+### Comparability
 
-- Mesmo corpus, mesmo diretório, sem transformações intermediárias.
-- `chunk_size=4096`, `overlap=512` nos dois lados.
-- 16 workers nos dois lados.
+- Same corpus, same directory, no intermediate transformations.
+- `chunk_size=4096`, `overlap=512` on both sides.
+- 16 workers on both sides.
 
-### Limitações
+### Limitations
 
-1. `tracemalloc` rastreia memória Python gerenciada. O RSS do processo inclui overhead do interpretador (~20–30 MB adicionais).
-2. `GODEBUG=gctrace=1` reporta o heap no momento da coleta — o maior valor capturado representa o peak bruto antes da liberação, não o residual pós-GC. Para medir o live set após coleta completa, instrumentar com `runtime.MemStats.HeapInuse` após `runtime.GC()` explícito.
-3. `ThreadPoolExecutor` no Python não paralela código CPU-bound por causa do GIL. O chunking ocorre majoritariamente em série, o que explica o throughput ~340× menor.
-4. Rodar 3 vezes e usar a mediana — resultados variam com estado do page cache e carga do sistema.
+1. `tracemalloc` tracks Python-managed memory only. Process RSS includes interpreter overhead (~20–30 MB additional).
+2. `GODEBUG=gctrace=1` reports the heap size at collection time — the largest value captured represents the peak before release, not the post-GC live set. To measure the live set after a full collection, instrument with `runtime.MemStats.HeapInuse` after an explicit `runtime.GC()`.
+3. `ThreadPoolExecutor` in Python does not parallelize CPU-bound code due to the GIL. Chunking runs mostly in series, which explains the ~340× lower throughput.
+4. Run 3 times and use the median — results vary with page cache state and system load.
 
 ---
 
-## Versões
+## Versions
 
-| Componente               | Versão          |
+| Component                | Version         |
 |--------------------------|-----------------|
 | Go                       | 1.22.2          |
 | GopherDoc                | v1.0.1 (29c5ba4)|
@@ -129,7 +129,7 @@ cat results/results.md
 
 ---
 
-## Referências
+## References
 
 - [VesperArch/GopherDoc](https://github.com/VesperArch/GopherDoc)
 - [LangChain RecursiveCharacterTextSplitter](https://python.langchain.com/docs/how_to/recursive_text_splitter/)
@@ -138,6 +138,6 @@ cat results/results.md
 
 ---
 
-## Licença
+## License
 
 MIT

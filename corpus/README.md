@@ -1,31 +1,31 @@
-# Corpus de Teste
+# Test Corpus
 
-O diretório `corpus/` é lido diretamente por ambos os benchmarks — nenhuma cópia, nenhuma transformação.
-
----
-
-## Composição
-
-| Tipo     | Arquivos | Tamanho médio | Total aprox. |
-|----------|---------|---------------|-------------|
-| `.md`    | 500     | 1 MB          | 500 MB      |
-| `.txt`   | 500     | 1.5 MB        | 750 MB      |
-| `.csv`   | 200     | 2 MB          | 400 MB      |
-| `.json`  | 200     | 1.75 MB       | 350 MB      |
-| **Total**| **1 400** | —           | **~2 GB**   |
+The `corpus/` directory is read directly by both benchmarks — no copies, no transformations.
 
 ---
 
-## Como gerar
+## Composition
 
-Execute `gera_corpus.sh` na raiz do repositório:
+| Type     | Files   | Avg size | Total approx. |
+|----------|---------|----------|---------------|
+| `.md`    | 500     | 1 MB     | 500 MB        |
+| `.txt`   | 500     | 1.5 MB   | 750 MB        |
+| `.csv`   | 200     | 2 MB     | 400 MB        |
+| `.json`  | 200     | 1.75 MB  | 350 MB        |
+| **Total**| **1 400** | —      | **~2 GB**     |
+
+---
+
+## How to generate
+
+Run `gera_corpus.sh` from the repository root:
 
 ```bash
 chmod +x gera_corpus.sh
 ./gera_corpus.sh
 ```
 
-O script abaixo é a cópia de referência do que está em `gera_corpus.sh`:
+The script below is the reference copy of what is in `gera_corpus.sh`:
 
 ```bash
 #!/usr/bin/env bash
@@ -35,7 +35,7 @@ readonly CORPUS_DIR="$(pwd)/corpus"
 
 mkdir -p "$CORPUS_DIR"
 
-echo "[1/4] Gerando arquivos .txt…"
+echo "[1/4] Generating .txt files…"
 for i in $(seq 1 500); do
   python3 -c "
 import random, string, sys
@@ -49,7 +49,7 @@ sys.stdout.write(' '.join(words))
 " > "$CORPUS_DIR/doc_${i}.txt"
 done
 
-echo "[2/4] Gerando arquivos .md…"
+echo "[2/4] Generating .md files…"
 for i in $(seq 1 500); do
   python3 -c "
 import random, string, sys
@@ -69,7 +69,7 @@ sys.stdout.write('\n'.join(out))
 " > "$CORPUS_DIR/doc_${i}.md"
 done
 
-echo "[3/4] Gerando arquivos .csv…"
+echo "[3/4] Generating .csv files…"
 for i in $(seq 1 200); do
   python3 -c "
 import random, string, sys, csv, io
@@ -91,7 +91,7 @@ sys.stdout.write(buf.getvalue())
 " > "$CORPUS_DIR/data_${i}.csv"
 done
 
-echo "[4/4] Gerando arquivos .json…"
+echo "[4/4] Generating .json files…"
 for i in $(seq 1 200); do
   python3 -c "
 import random, string, json, sys
@@ -116,14 +116,14 @@ sys.stdout.write(json.dumps(docs, ensure_ascii=False))
 done
 
 echo ""
-echo "Corpus gerado em: $CORPUS_DIR"
-du -sh "$CORPUS_DIR" | awk '{print "Tamanho total:    " $1}'
-echo "Arquivos:         $(find "$CORPUS_DIR" -type f | wc -l)"
+echo "Corpus generated at: $CORPUS_DIR"
+du -sh "$CORPUS_DIR" | awk '{print "Total size:       " $1}'
+echo "Files:            $(find "$CORPUS_DIR" -type f | wc -l)"
 ```
 
 ---
 
-## Verificação de integridade
+## Integrity check
 
 ```bash
 du -sh corpus/
@@ -136,8 +136,8 @@ find corpus/ -name "*.json" | wc -l
 
 ---
 
-## Notas
+## Notes
 
-- Os arquivos gerados não são versionados — `.gitignore` exclui `corpus/*` exceto este README.
-- Sementes fixas por índice (`seed = i × primo`): o corpus é byte-a-byte idêntico em qualquer máquina com **Python 3.10+**. O algoritmo interno do `random` pode diferir em versões anteriores.
-- Não mova, renomeie ou recompacte os arquivos entre as execuções dos dois benchmarks.
+- Generated files are not versioned — `.gitignore` excludes `corpus/*` except this README.
+- Fixed seeds per index (`seed = i × prime`): the corpus is byte-for-byte identical on any machine running **Python 3.10+**. The internal `random` algorithm may differ in earlier versions.
+- Do not move, rename, or repack files between the two benchmark runs.
