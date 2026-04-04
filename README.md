@@ -2,12 +2,14 @@
 
 Comparison of throughput, heap usage, and wall time between GopherDoc (Go) and LangChain (Python) over the same ~1.7 GB corpus.
 
-| Metric             | GopherDoc | LangChain  |
-|--------------------|-----------|------------|
-| Wall time          | 4.010 s   | 1363.332 s |
-| Throughput         | 421 MB/s  | 1.24 MB/s  |
-| Peak heap (post-GC) | 117 MB    | 389 MB     |
-| Chunks generated   | 498,211   | 496,349    |
+| Metric              | GopherDoc    | LangChain    |
+|---------------------|--------------|--------------|
+| Wall time           | 4.770 s      | 1369.986 s   |
+| Throughput          | 354.04 MB/s  | 1.23 MB/s    |
+| Peak heap (post-GC) | 116 MB       | 396.67 MB    |
+| Chunks generated    | 498,210      | 496,348      |
+
+*Median of 3 runs. Raw data: [results/results.md](results/results.md).*
 
 Full results and environment details: [results/results.md](results/results.md).
 
