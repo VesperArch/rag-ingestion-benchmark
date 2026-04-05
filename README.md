@@ -113,7 +113,7 @@ cat results/results.md
 
 1. `tracemalloc` tracks Python-managed memory only. Process RSS includes interpreter overhead (~20–30 MB additional).
 2. `GODEBUG=gctrace=1` reports the heap size at collection time — the largest value captured represents the peak before release, not the post-GC live set. To measure the live set after a full collection, instrument with `runtime.MemStats.HeapInuse` after an explicit `runtime.GC()`.
-3. `ThreadPoolExecutor` in Python does not parallelize CPU-bound code due to the GIL. Chunking runs mostly in series, which explains the ~340× lower throughput.
+3. `ThreadPoolExecutor` in Python does not parallelize CPU-bound code due to the GIL. Chunking runs mostly in series, which explains the ~288× lower throughput.
 4. Run 3 times and use the median — results vary with page cache state and system load.
 
 ---
